@@ -3,13 +3,23 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { userPathname, useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete }) => {
   const { data: session } = useSession();
   const pathName = usePathname();
-  const router = useRouter();
   const [ copied, setCopied ] = useState("");
+  const router = useRouter();
+
+  const handleProfileClick = () => {
+    console.log(post);
+
+    if (post.creator._id === session?.user.id) {
+      return router.push("/profile");
+    }
+
+    router.push(`/profile/${post.creator._id}?name=${post.creator.username}`);
+  }
 
   const handleCopy = () => {
     setCopied(post.prompt);
@@ -27,9 +37,10 @@ const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete }) => {
             width={40}
             height={40}
             className='rounded-full object-contain'
+            onClick={handleProfileClick}
           />
           <div className='flex flex-col'>
-            <h3 className='font-satoshi font-semibold text-gray-100'>{post.creator.username}</h3>
+            <h3 className='font-satoshi font-semibold text-gray-100' onClick={handleProfileClick}>{post.creator.username}</h3>
             <p className='font-intert text-sm text-gray-500'>{post.creator.email}</p>
           </div>
           <div className='copy_btn' onClick={handleCopy}>
@@ -37,6 +48,7 @@ const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete }) => {
               src={copied === post.prompt ? '/assets/icons/tick.svg' : '/assets/icons/copy.svg' }
               width={12}
               height={12}
+              alt="copy"
             />
           </div>
         </div>
